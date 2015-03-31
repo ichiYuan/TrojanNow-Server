@@ -3,14 +3,12 @@ class User < ActiveRecord::Base
   
   has_many :likes, dependent: :destroy
   
-  has_many :active_messages, class_name: "Message",
-                             foreign_key: "sender_id",
-                             dependent: destroy
-  has_many :passive_messages, class_name: "Message",
-                              foreign_key: "receiver_id",
-                              dependent: destroy
-  has_many :out_messages, through: active_relationships, source: :receiver
-  has_many :in_messages, through: passive_messages, source: :sender
+  has_many :out_messages, class_name: "Message",
+                          foreign_key: "sender_id",
+                          dependent: :destroy
+  has_many :in_messages, class_name: "Message",
+                         foreign_key: "receiver_id",
+                         dependent: :destroy
   
   has_many :active_relationships, class_name: "Relationship",
                                   foreign_key: "follower_id",
@@ -29,4 +27,20 @@ class User < ActiveRecord::Base
                     uniqueness: { case_sensitive: false }
   has_secure_password
   validates :password, length: { minimum: 6 }
+  
+  def follow(other_user)
+    active_relationships.create(followed_id: other_user.id)
+  end
+  
+  def unfollow(other_user)
+    active_relationships.find_by(followed_id: other_user.id).destroy
+  end
+  
+  def following?(other_user)
+    following.include?(other_user)
+  end
+  
+  def send_message(other_user, content)
+    active_messages.create(receiver_id: other_user.id, content: content)
+  end
 end

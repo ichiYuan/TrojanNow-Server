@@ -3,13 +3,21 @@ Rails.application.routes.draw do
 
   resources :microposts
 
-  resources :users
+  resources :users do
+    member do
+      get :following, :followers
+      get :inbox, :outbox
+    end
+  end
+  
+  resources :relationships, only: [:create, :destroy]
+  resources :likes,         only: [:create, :destroy]
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
-  # root 'welcome#index'
+  root 'users#index'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

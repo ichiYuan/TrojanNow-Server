@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :following, :followers, :inbox, :outbox]
 
   # GET /users
   # GET /users.json
@@ -60,6 +60,27 @@ class UsersController < ApplicationController
       format.json { head :no_content }
     end
   end
+  
+  def following
+    @users = @user.following
+    render :index
+  end
+  
+  def followers
+    @users = @user.followers
+    render :index
+  end
+  
+  def inbox
+    @messages = @user.in_messages
+    render template: 'messages/index'
+  end
+  
+  def outbox
+    @messages = @user.out_messages
+    render template: 'messages/index'
+  end
+    
 
   private
     # Use callbacks to share common setup or constraints between actions.
@@ -69,6 +90,6 @@ class UsersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
-      params.require(:user).permit(:name, :first_name, :last_name, :email, :password_digest)
+      params.require(:user).permit(:name, :first_name, :last_name, :email, :password, :password_confirmation)
     end
 end
