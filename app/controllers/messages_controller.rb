@@ -1,11 +1,13 @@
 class MessagesController < ApplicationController
-  before_action :set_message, only: [:show, :edit, :update, :destroy]
+  before_action :set_message, only: [:show, :destroy]
+  before_action :correct_owner, only: [:destroy]
+  before_action :correct_user, only: [:show]
 
   # GET /messages
   # GET /messages.json
-  def index
-    @messages = Message.all
-  end
+  # def index
+  #   @messages = Message.all
+  # end
 
   # GET /messages/1
   # GET /messages/1.json
@@ -18,13 +20,17 @@ class MessagesController < ApplicationController
   end
 
   # GET /messages/1/edit
-  def edit
-  end
+  # def edit
+  # end
 
   # POST /messages
   # POST /messages.json
   def create
     @message = Message.new(message_params)
+    @message.sender_id = current_user.id
+    unless current_user.following?(@message.receiver)
+      redirect_to(root_url) and return
+    end
 
     respond_to do |format|
       if @message.save
@@ -39,36 +45,44 @@ class MessagesController < ApplicationController
 
   # PATCH/PUT /messages/1
   # PATCH/PUT /messages/1.json
-  def update
-    respond_to do |format|
-      if @message.update(message_params)
-        format.html { redirect_to @message, notice: 'Message was successfully updated.' }
-        format.json { render :show, status: :ok, location: @message }
-      else
-        format.html { render :edit }
-        format.json { render json: @message.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+  # def update
+  #   respond_to do |format|
+  #     if @message.update(message_params)
+  #       format.html { redirect_to @message, notice: 'Message was successfully updated.' }
+  #       format.json { render :show, status: :ok, location: @message }
+  #     else
+  #       format.html { render :edit }
+  #       format.json { render json: @message.errors, status: :unprocessable_entity }
+  #     end
+  #   end
+  # end
 
   # DELETE /messages/1
   # DELETE /messages/1.json
-  def destroy
-    @message.destroy
-    respond_to do |format|
-      format.html { redirect_to messages_url, notice: 'Message was successfully destroyed.' }
-      format.json { head :no_content }
-    end
-  end
+  # def destroy
+  #   @message.destroy
+  #   respond_to do |format|
+  #     format.html { redirect_to messages_url, notice: 'Message was successfully destroyed.' }
+  #     format.json { head :no_content }
+  #   end
+  # end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_message
       @message = Message.find(params[:id])
     end
+    
+    def correct_owner
+      redirect_to(root_url) unless current_user == @message.sender
+    end
+    
+    def correct_user
+      redirect_to(root_url) unless current_user == @message.sender || current_user == @message.receiver
+    end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def message_params
-      params.require(:message).permit(:content, :sender_id, :receiver_id)
+      params.require(:message).permit(:content, :receiver_id)
     end
 end

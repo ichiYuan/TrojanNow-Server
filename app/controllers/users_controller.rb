@@ -1,10 +1,16 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :following, :followers, :inbox, :outbox]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :following, :followers, :inbox, :outbox, :feed, :microposts]
+  #before_action :correct_user, only: [:edit, :update, :inbox, :outbox, :feed, :microposts]
+  before_action :admin_user, only: [:destroy]
 
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    if params[:name].blank?
+      @users = User.all
+    else
+      @users = User.where("name LIKE :name", name: "%#{params[:name].strip}%")
+    end
   end
 
   # GET /users/1
@@ -80,12 +86,29 @@ class UsersController < ApplicationController
     @messages = @user.out_messages
     render template: 'messages/index'
   end
-    
+  
+  def feed
+    @microposts = @user.feed
+    render template: 'microposts/index'
+  end
+  
+  def microposts
+    @microposts = @user.microposts
+    render template: 'microposts/index'
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.find(params[:id])
+    end
+    
+    def correct_user
+      redirect_to root_url unless @user == current_user
+    end
+    
+    def admin_user
+      redirect_to root_url unless !!current_user and current_user.admin?
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

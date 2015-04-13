@@ -1,5 +1,11 @@
 Rails.application.routes.draw do
-  resources :messages
+  get    'anonyposts' => 'microposts#anonyposts'
+  get    'signup'  => 'users#new'
+  get    'login'   => 'sessions#new'
+  post   'login'   => 'sessions#create'
+  delete 'logout'  => 'sessions#destroy'
+  
+  resources :messages, only: [:show, :new, :create]
 
   resources :microposts
 
@@ -7,6 +13,8 @@ Rails.application.routes.draw do
     member do
       get :following, :followers
       get :inbox, :outbox
+      get :microposts
+      get :feed
     end
   end
   
