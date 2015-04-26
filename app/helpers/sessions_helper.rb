@@ -28,6 +28,10 @@ module SessionsHelper
       end
     end
   end
+  
+  def admin_user?
+    current_user and current_user.admin?
+  end
 
   # 如果用户已登录，返回 true，否则返回 false
   def logged_in?

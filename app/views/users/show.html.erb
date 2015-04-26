@@ -27,8 +27,7 @@
 </p>
 
 <p>
-  <strong>Password digest:</strong>
-  <%= @user.password_digest %>
+  <%= link_to 'Following', following_user_path(@user) %> | <%= link_to 'Followers', followers_user_path(@user) %>
 </p>
 
 <%= link_to 'Edit', edit_user_path(@user) %> |

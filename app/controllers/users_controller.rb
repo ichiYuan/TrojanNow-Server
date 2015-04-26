@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy, :following, :followers, :inbox, :outbox, :feed, :microposts]
-  #before_action :correct_user, only: [:edit, :update, :inbox, :outbox, :feed, :microposts]
+  before_action :login_user, only: [:show]
+  before_action :correct_user, only: [:edit, :update, :inbox, :outbox, :feed, :microposts]
   before_action :admin_user, only: [:destroy]
 
   # GET /users
@@ -101,6 +102,10 @@ class UsersController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.find(params[:id])
+    end
+    
+    def login_user
+      redirect_to root_url unless logged_in?
     end
     
     def correct_user
