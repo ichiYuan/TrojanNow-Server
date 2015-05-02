@@ -8,4 +8,8 @@ class Micropost < ActiveRecord::Base
   def display_user
     anony ? 'Anonymous' : user.name
   end
+  
+  def liked?(user)
+    !likes.includes(user).empty?
+  end
 end

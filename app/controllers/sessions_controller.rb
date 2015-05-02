@@ -2,6 +2,18 @@ class SessionsController < ApplicationController
 
   def new
   end
+  
+  def check
+    respond_to do |format|
+      if logged_in?
+        format.html { render template: 'users/index' }
+        format.json { render :check }
+      else
+        format.html { render :new }
+        format.json { render json: 'NOT LOGGED IN' }
+      end
+    end
+  end
 
   def create
     @user = User.find_by(email: params[:session][:email].downcase)
@@ -27,6 +39,9 @@ class SessionsController < ApplicationController
 
   def destroy
     log_out if logged_in?
-    redirect_to root_url
+    respond_to do |format| 
+      format.html { redirect_to root_url }
+      format.json { head :no_content }
+    end
   end
 end
